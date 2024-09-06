@@ -6,7 +6,7 @@
 package main
 
 import (
-	"drpcserver"
+	drpcserver "github.com/onepiece-dz/drpc-server"
 	"log"
 	"net"
 )
