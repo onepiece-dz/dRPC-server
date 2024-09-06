@@ -1,3 +1,3 @@
-module drpc-server
+module drpcserver
 
 go 1.22

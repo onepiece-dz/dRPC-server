@@ -6,6 +6,7 @@
 package main
 
 import (
+	"drpcserver"
 	"log"
 	"net"
 )
@@ -17,7 +18,7 @@ func startServer() {
 		log.Fatal("network error:", err)
 	}
 	log.Println("start rpc server on", l.Addr())
-	Accept(l)
+	drpcserver.Accept(l)
 }
 
 func main() {

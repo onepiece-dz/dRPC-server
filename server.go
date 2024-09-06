@@ -3,10 +3,10 @@
 // @time     : 2024/9/4 14:11
 //
 // -------------------------------------------
-package main
+package drpcserver
 
 import (
-	"drpc-server/codec"
+	"drpcserver/codec"
 	"encoding/json"
 	"errors"
 	"fmt"
