@@ -7,10 +7,17 @@ package main
 
 import (
 	drpcserver "github.com/onepiece-dz/drpc-server"
+	"github.com/onepiece-dz/drpc-server/services"
 	"log"
 	"net"
 )
 
+func registerRpcService() {
+	var foo services.Foo
+	if err := drpcserver.Register(&foo); err != nil {
+		log.Fatal("register error:", err)
+	}
+}
 func startServer() {
 	// pick a free port
 	l, err := net.Listen("tcp", "[::]:8888")
@@ -22,5 +29,6 @@ func startServer() {
 }
 
 func main() {
+	registerRpcService()
 	startServer()
 }
