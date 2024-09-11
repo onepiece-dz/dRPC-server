@@ -34,6 +34,12 @@ var DefaultOption = &Option{
 	ConnectTimeout: time.Second * 10,
 }
 
+type OpAck struct {
+	Msg string
+}
+
+var opAck = &OpAck{Msg: "Ok"}
+
 // Server represents an RPC Server.
 type Server struct {
 	serviceMap sync.Map
@@ -66,15 +72,35 @@ func (server *Server) ServeConn(conn io.ReadWriteCloser) {
 	var opt Option
 	if err := json.NewDecoder(conn).Decode(&opt); err != nil {
 		log.Println("rpc server: options error: ", err)
+		// 给一个协议握手的答复，表示服务端已准备好，客户端收到答复之后，再进行下一步
+		if err := json.NewEncoder(conn).Encode(&OpAck{Msg: fmt.Sprintf("rpc server: options error: %v", err)}); err != nil {
+			log.Println("rpc server: options ack error: ", err)
+			return
+		}
 		return
 	}
 	if opt.MagicNumber != MagicNumber {
 		log.Printf("rpc server: invalid magic number %x", opt.MagicNumber)
+		// 给一个协议握手的答复，表示服务端已准备好，客户端收到答复之后，再进行下一步
+		if err := json.NewEncoder(conn).Encode(&OpAck{Msg: fmt.Sprintf("rpc server: invalid magic number %x", opt.MagicNumber)}); err != nil {
+			log.Println("rpc server: options ack error: ", err)
+			return
+		}
 		return
 	}
 	f := codec.NewCodecFuncMap[opt.CodecType]
 	if f == nil {
 		log.Printf("rpc server: invalid codec type %s", opt.CodecType)
+		// 给一个协议握手的答复，表示服务端已准备好，客户端收到答复之后，再进行下一步
+		if err := json.NewEncoder(conn).Encode(&OpAck{Msg: fmt.Sprintf("rpc server: invalid codec type %s", opt.CodecType)}); err != nil {
+			log.Println("rpc server: options ack error: ", err)
+			return
+		}
+		return
+	}
+	// 给一个协议握手的答复，表示服务端已准备好，客户端收到答复之后，再进行下一步
+	if err := json.NewEncoder(conn).Encode(opAck); err != nil {
+		log.Println("rpc server: options ack error: ", err)
 		return
 	}
 	server.serveCodec(f(conn), &opt)
